@@ -1,28 +1,23 @@
 {
   "name": "pestalert",
   "version": "1.0.0",
-  "description": "Assistant agricole intelligent pour identifier les ravageurs et obtenir des traitements",
-  "main": "pestalert-complete.html",
+  "description": "Assistant agricole intelligent pour identifier les ravageurs",
+  "main": "index.html",
   "scripts": {
-    "start": "python -m http.server 8000",
-    "dev": "python -m http.server 8000",
-    "build": "echo 'Build completed'"
+    "dev": "npx serve .",
+    "build": "echo 'Build completed'",
+    "start": "npx serve ."
   },
   "keywords": [
     "agriculture",
     "pest-detection",
     "whatsapp-bot",
-    "pwa",
-    "mobile-app",
-    "africa"
+    "ai",
+    "dashboard"
   ],
-  "author": "PestAlert Team",
+  "author": "kouletio02",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/yourusername/pestalert.git"
-  },
-  "engines": {
-    "node": ">=14.0.0"
+  "devDependencies": {
+    "serve": "^14.2.0"
   }
 } 

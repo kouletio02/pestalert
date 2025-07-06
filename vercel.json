@@ -7,30 +7,18 @@
       "use": "@vercel/static"
     },
     {
-      "src": "*.js",
+      "src": "*.css",
       "use": "@vercel/static"
     },
     {
-      "src": "*.json",
+      "src": "*.js",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/",
-      "dest": "/pestalert-complete.html"
-    },
-    {
-      "src": "/sw.js",
-      "headers": {
-        "Cache-Control": "public, max-age=0, must-revalidate"
-      }
-    },
-    {
-      "src": "/manifest.json",
-      "headers": {
-        "Content-Type": "application/json"
-      }
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ],
   "headers": [
@@ -51,5 +39,7 @@
         }
       ]
     }
-  ]
+  ],
+  "functions": {},
+  "env": {}
 } 

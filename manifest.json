@@ -2,7 +2,7 @@
   "name": "PestAlert - Assistant Agricole",
   "short_name": "PestAlert",
   "description": "Assistant agricole intelligent pour identifier les ravageurs et obtenir des traitements",
-  "start_url": "/pestalert-complete.html",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#10b981",
   "theme_color": "#10b981",

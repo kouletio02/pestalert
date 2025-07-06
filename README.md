@@ -250,4 +250,4 @@ Pour toute question ou suggestion d'amélioration, n'hésitez pas à ouvrir une 
 
 ---
 
-**🐛 PestAlert** - Protéger l'agriculture, un diagnostic à la fois. 
+**🐛 PestAlert** - Protéger l'agriculture, un diagnostic à la fois.

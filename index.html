@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PestAlert - Assistant Agricole Intelligent</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-logo">
+                <div class="logo-animation">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                <h2>PestAlert</h2>
+            </div>
+            <div class="loading-bar">
+                <div class="loading-progress"></div>
+            </div>
+            <p>Chargement de votre assistant agricole...</p>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app-wrapper" id="appWrapper">
+        <!-- Premium Header -->
+        <header class="app-header">
+            <div class="header-container">
+                <div class="brand-section">
+                    <div class="logo-container">
+                        <div class="logo-icon">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div class="logo-text">
+                            <h1>PestAlert</h1>
+                            <span class="tagline">Assistant Agricole Intelligent</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="demo-button" id="demoButton">
+                        <i class="fas fa-play"></i>
+                        <span>Démo Live</span>
+                    </button>
+                    <button class="theme-toggle" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="header-decoration"></div>
+        </header>
+
+        <!-- Premium Navigation -->
+        <nav class="app-navigation">
+            <div class="nav-container">
+                <div class="nav-tabs">
+                    <button class="nav-tab active" data-screen="1">
+                        <i class="fas fa-home"></i>
+                        <span>Accueil</span>
+                    </button>
+                    <button class="nav-tab" data-screen="2">
+                        <i class="fas fa-camera"></i>
+                        <span>Photo</span>
+                    </button>
+                    <button class="nav-tab" data-screen="3">
+                        <i class="fas fa-brain"></i>
+                        <span>Analyse</span>
+                    </button>
+                    <button class="nav-tab" data-screen="4">
+                        <i class="fas fa-search"></i>
+                        <span>Diagnostic</span>
+                    </button>
+                    <button class="nav-tab" data-screen="5">
+                        <i class="fas fa-medkit"></i>
+                        <span>Traitement</span>
+                    </button>
+                    <button class="nav-tab" data-screen="6">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Signalement</span>
+                    </button>
+                    <button class="nav-tab" data-screen="7">
+                        <i class="fas fa-history"></i>
+                        <span>Historique</span>
+                    </button>
+                    <button class="nav-tab" data-screen="8">
+                        <i class="fas fa-cog"></i>
+                        <span>Paramètres</span>
+                    </button>
+                    <button class="nav-tab" data-screen="9">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Dashboard</span>
+                    </button>
+                    <button class="nav-tab" data-screen="10">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Analytics</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Écran 1: Accueil Premium -->
+            <div class="screen active" id="screen-1">
+                <div class="phone-mockup">
+                    <div class="phone-frame">
+                        <div class="phone-header">
+                            <div class="header-left">
+                                <div class="contact-avatar">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="contact-info">
+                                    <div class="contact-name">AgriBot Assistant</div>
+                                    <div class="contact-status">
+                                        <span class="status-indicator online"></span>
+                                        En ligne
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="header-actions">
+                                <i class="fas fa-phone"></i>
+                                <i class="fas fa-video"></i>
+                                <i class="fas fa-ellipsis-v"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="chat-container">
+                            <div class="message bot-message">
+                                <div class="message-avatar">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="message-content">
+                                    <div class="message-bubble">
+                                        <div class="welcome-message">
+                                            <span class="wave-emoji">👋</span>
+                                            <strong>Bonjour Marie !</strong>
+                                        </div>
+                                        <p>Je suis votre assistant agricole intelligent. Comment puis-je vous aider aujourd'hui ?</p>
+                                    </div>
+                                    <div class="message-time">14:32</div>
+                                </div>
+                            </div>
+                            
+                            <div class="quick-actions">
+                                <div class="action-grid">
+                                    <button class="action-card primary" data-action="camera">
+                                        <div class="action-icon">
+                                            <i class="fas fa-camera"></i>
+                                        </div>
+                                        <div class="action-text">
+                                            <strong>Diagnostic Photo</strong>
+                                            <span>Identifier un ravageur</span>
+                                        </div>
+                                        <div class="action-arrow">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </div>
+                                    </button>
+                                    
+                                    <button class="action-card" data-action="treatment">
+                                        <div class="action-icon">
+                                            <i class="fas fa-medkit"></i>
+                                        </div>
+                                        <div class="action-text">
+                                            <strong>Conseils Traitement</strong>
+                                            <span>Solutions adaptées</span>
+                                        </div>
+                                        <div class="action-arrow">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </div>
+                                    </button>
+                                    
+                                    <button class="action-card" data-action="alert">
+                                        <div class="action-icon">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        </div>
+                                        <div class="action-text">
+                                            <strong>Signaler Foyer</strong>
+                                            <span>Alerter la communauté</span>
+                                        </div>
+                                        <div class="action-arrow">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </div>
+                                    </button>
+                                    
+                                    <button class="action-card" data-action="dashboard">
+                                        <div class="action-icon">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                        <div class="action-text">
+                                            <strong>Mon Dashboard</strong>
+                                            <span>Suivi personnalisé</span>
+                                        </div>
+                                        <div class="action-arrow">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Écran 2: Interface Caméra Premium -->
+            <div class="screen" id="screen-2">
+                <div class="phone-mockup">
+                    <div class="phone-frame">
+                        <div class="phone-header">
+                            <div class="header-left">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Diagnostic Photo</span>
+                            </div>
+                            <div class="header-actions">
+                                <i class="fas fa-flash"></i>
+                                <i class="fas fa-sync-alt"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="camera-interface">
+                            <div class="camera-viewfinder">
+                                <div class="focus-grid">
+                                    <div class="grid-line horizontal"></div>
+                                    <div class="grid-line vertical"></div>
+                                    <div class="focus-area">
+                                        <div class="focus-corner top-left"></div>
+                                        <div class="focus-corner top-right"></div>
+                                        <div class="focus-corner bottom-left"></div>
+                                        <div class="focus-corner bottom-right"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="camera-overlay">
+                                    <div class="overlay-top">
+                                        <div class="camera-tip">
+                                            <i class="fas fa-lightbulb"></i>
+                                            <span>Placez le ravageur au centre de l'image</span>
+                                        </div>
+                                    </div>
+                                    <div class="overlay-bottom">
+                                        <div class="camera-controls">
+                                            <button class="control-btn">
+                                                <i class="fas fa-image"></i>
+                                                <span>Galerie</span>
+                                            </button>
+                                            <button class="control-btn primary capture-btn">
+                                                <div class="capture-ring">
+                                                    <i class="fas fa-camera"></i>
+                                                </div>
+                                            </button>
+                                            <button class="control-btn">
+                                                <i class="fas fa-undo"></i>
+                                                <span>Reprendre</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Écran 3: Analyse IA Premium -->
+            <div class="screen" id="screen-3">
+                <div class="phone-mockup">
+                    <div class="phone-frame">
+                        <div class="phone-header">
+                            <div class="header-left">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Analyse en cours</span>
+                            </div>
+                        </div>
+                        
+                        <div class="analysis-interface">
+                                <div class="ai-loader">
+                                    <div class="loader-container">
+                                        <div class="pulse-ring"></div>
+                                        <div class="ai-icon">
+                                            <i class="fas fa-brain"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="analysis-status">
+                                <h3>Analyse IA en cours...</h3>
+                                <p>Notre intelligence artificielle examine votre photo</p>
+                                </div>
+                                
+                                <div class="analysis-steps">
+                                    <div class="step active">
+                                        <div class="step-icon">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                        <div class="step-text">
+                                        <strong>Détection d'image</strong>
+                                        <span>Analyse de la qualité</span>
+                                        </div>
+                                        <div class="step-status">
+                                        <div class="spinner"></div>
+                                        </div>
+                                    </div>
+                                    
+                                <div class="step">
+                                        <div class="step-icon">
+                                            <i class="fas fa-search"></i>
+                                        </div>
+                                        <div class="step-text">
+                                        <strong>Identification</strong>
+                                        <span>Comparaison avec la base de données</span>
+                                        </div>
+                                        <div class="step-status">
+                                        <i class="fas fa-clock"></i>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="step">
+                                        <div class="step-icon">
+                                        <i class="fas fa-chart-line"></i>
+                                        </div>
+                                        <div class="step-text">
+                                        <strong>Évaluation</strong>
+                                        <span>Calcul du niveau de gravité</span>
+                                        </div>
+                                        <div class="step-status">
+                                            <i class="fas fa-clock"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Écran 4: Diagnostic Premium -->
+            <div class="screen" id="screen-4">
+                <div class="phone-mockup">
+                    <div class="phone-frame">
+                        <div class="phone-header">
+                            <div class="header-left">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Résultat Diagnostic</span>
+                            </div>
+                        </div>
+                        
+                        <div class="diagnostic-container">
+                            <div class="diagnostic-result">
+                                <div class="result-header">
+                                    <div class="pest-icon">
+                                        <i class="fas fa-bug"></i>
+                                    </div>
+                                    <div class="pest-info">
+                                        <h2>Chenille Légionnaire</h2>
+                                        <span class="scientific-name">Spodoptera frugiperda</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="severity-assessment">
+                                    <div class="severity-header">
+                                        <h3>Niveau de Gravité</h3>
+                                        <span class="severity-badge moderate">Modérée</span>
+                                    </div>
+                                    <div class="severity-meter">
+                                        <div class="meter-track">
+                                            <div class="meter-fill moderate"></div>
+                                        </div>
+                                        <div class="meter-labels">
+                                            <span>Faible</span>
+                                            <span>Modérée</span>
+                                            <span>Élevée</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="diagnostic-details">
+                                    <div class="detail-card">
+                                        <div class="detail-icon">
+                                            <i class="fas fa-info-circle"></i>
+                                        </div>
+                                        <div class="detail-content">
+                                            <strong>Description</strong>
+                                            <span>Ravageur redoutable du maïs, se nourrit des feuilles et des épis</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="detail-card">
+                                        <div class="detail-icon">
+                                            <i class="fas fa-calendar"></i>
+                                        </div>
+                                        <div class="detail-content">
+                                            <strong>Période critique</strong>
+                                            <span>Juin à Septembre</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="detail-card">
+                                        <div class="detail-icon">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                        </div>
+                                        <div class="detail-content">
+                                            <strong>Zone touchée</strong>
+                                            <span>Votre région (3 signalements récents)</span>
+                                        </div>
+                                </div>
+                            </div>
+                            
+                            <div class="action-buttons">
+                                <button class="btn-primary">
+                                    <i class="fas fa-medkit"></i>
+                                    Voir le traitement
+                                </button>
+                                <button class="btn-secondary">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        Signaler foyer
+                                </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Écran 5: Traitement Premium -->
+            <div class="screen" id="screen-5">
+                <div class="phone-mockup">
+                    <div class="phone-frame">
+                        <div class="phone-header">
+                            <div class="header-left">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Plan de Traitement</span>
+                            </div>
+                        </div>
+                        
+                        <div class="treatment-container">
+                            <div class="treatment-header">
+                                <div class="treatment-icon">
+                                    <i class="fas fa-medkit"></i>
+                                </div>
+                                <div class="treatment-info">
+                                    <h2>Traitement Chenille Légionnaire</h2>
+                                    <span class="treatment-subtitle">Solution adaptée à votre situation</span>
+                                </div>
+                            </div>
+                            
+                            <div class="treatment-steps">
+                                <div class="step-card">
+                                    <div class="step-number">1</div>
+                                    <div class="step-content">
+                                        <h3>Préparation</h3>
+                                        <p>Pulvériser tôt le matin (6h-8h) ou en soirée (18h-20h)</p>
+                                        <div class="step-tip">
+                                            <i class="fas fa-lightbulb"></i>
+                                            <span>Évitez les heures chaudes pour une meilleure efficacité</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="step-card">
+                                    <div class="step-number">2</div>
+                                    <div class="step-content">
+                                        <h3>Application</h3>
+                                        <p>Dose recommandée : 2L/ha de solution</p>
+                                        <div class="step-details">
+                                            <div class="detail-item">
+                                                <i class="fas fa-tint"></i>
+                                                <span>Produit : Bacillus thuringiensis</span>
+                                            </div>
+                                            <div class="detail-item">
+                                                <i class="fas fa-clock"></i>
+                                                <span>Fréquence : 2 applications à 7 jours d'intervalle</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="step-card">
+                                    <div class="step-number">3</div>
+                                    <div class="step-content">
+                                        <h3>Suivi</h3>
+                                        <p>Vérifiez l'efficacité après 48h</p>
+                                        <div class="step-tip">
+                                            <i class="fas fa-check-circle"></i>
+                                            <span>Prenez une photo pour documenter l'amélioration</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="treatment-actions">
+                                <button class="btn-primary">
+                                    <i class="fas fa-download"></i>
+                                    Télécharger PDF
+                                </button>
+                                <button class="btn-secondary">
+                                    <i class="fas fa-share"></i>
+                                    Partager
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Écran 6: Signalement Premium -->
+            <div class="screen" id="screen-6">
+                <div class="phone-mockup">
+                    <div class="phone-frame">
+                        <div class="phone-header">
+                            <div class="header-left">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Signaler un Foyer</span>
+                            </div>
+                        </div>
+                        
+                        <div class="alert-container">
+                            <div class="alert-header">
+                                <div class="alert-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="alert-info">
+                                    <h2>Signalement d'Infestation</h2>
+                                    <span>Aidez votre communauté en signalant ce foyer</span>
+                                </div>
+                            </div>
+                            
+                            <div class="alert-form">
+                                <div class="form-group">
+                                    <label>Type de ravageur</label>
+                                    <div class="pest-selector">
+                                        <div class="pest-option selected">
+                                            <i class="fas fa-bug"></i>
+                                            <span>Chenille Légionnaire</span>
+                                        </div>
+                                        <div class="pest-option">
+                                            <i class="fas fa-leaf"></i>
+                                            <span>Autre</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Localisation</label>
+                                    <div class="location-input">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                        <input type="text" placeholder="Nom de votre village/ville" value="Ablawa">
+                                        <button class="gps-btn">
+                                            <i class="fas fa-crosshairs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Niveau d'infestation</label>
+                                    <div class="severity-slider">
+                                        <input type="range" min="1" max="5" value="3" class="slider">
+                                        <div class="slider-labels">
+                                            <span>Faible</span>
+                                            <span>Modérée</span>
+                                            <span>Élevée</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Commentaire (optionnel)</label>
+                                    <textarea placeholder="Décrivez la situation..."></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="alert-actions">
+                                <button class="btn-primary">
+                                    <i class="fas fa-paper-plane"></i>
+                                    Envoyer Signalement
+                                </button>
+                                <button class="btn-secondary">
+                                    <i class="fas fa-times"></i>
+                                    Annuler
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Écran 7: Historique Premium -->
+            <div class="screen" id="screen-7">
+                <div class="phone-mockup">
+                    <div class="phone-frame">
+                        <div class="phone-header">
+                            <div class="header-left">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Historique</span>
+                            </div>
+                            <div class="header-actions">
+                                <i class="fas fa-filter"></i>
+                                <i class="fas fa-download"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="history-container">
+                            <div class="history-stats">
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-search"></i>
+                                </div>
+                                    <div class="stat-info">
+                                        <span class="stat-number">24</span>
+                                        <span class="stat-label">Diagnostics</span>
+                                    </div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <span class="stat-number">18</span>
+                                        <span class="stat-label">Résolus</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="history-list">
+                                <div class="history-item">
+                                    <div class="item-avatar">
+                                                <i class="fas fa-bug"></i>
+                                            </div>
+                                    <div class="item-content">
+                                        <div class="item-header">
+                                            <h3>Chenille Légionnaire</h3>
+                                            <span class="item-date">Aujourd'hui, 14:32</span>
+                                            </div>
+                                        <div class="item-details">
+                                            <span class="severity moderate">Gravité: Modérée</span>
+                                            <span class="status resolved">Résolu</span>
+                                        </div>
+                                        </div>
+                                    <div class="item-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </div>
+                                
+                                <div class="history-item">
+                                    <div class="item-avatar">
+                                        <i class="fas fa-leaf"></i>
+                                    </div>
+                                    <div class="item-content">
+                                    <div class="item-header">
+                                            <h3>Mildiou de la Tomate</h3>
+                                            <span class="item-date">Hier, 09:15</span>
+                                            </div>
+                                        <div class="item-details">
+                                            <span class="severity high">Gravité: Élevée</span>
+                                            <span class="status pending">En cours</span>
+                                            </div>
+                                        </div>
+                                    <div class="item-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </div>
+                                
+                                <div class="history-item">
+                                    <div class="item-avatar">
+                                        <i class="fas fa-seedling"></i>
+                                    </div>
+                                    <div class="item-content">
+                                    <div class="item-header">
+                                            <h3>Puceron du Maïs</h3>
+                                            <span class="item-date">23 Juin, 16:45</span>
+                                            </div>
+                                        <div class="item-details">
+                                            <span class="severity low">Gravité: Faible</span>
+                                            <span class="status resolved">Résolu</span>
+                                            </div>
+                                        </div>
+                                    <div class="item-arrow">
+                                        <i class="fas fa-chevron-right"></i>
+                                        </div>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Écran 8: Paramètres Premium -->
+            <div class="screen" id="screen-8">
+                <div class="phone-mockup">
+                    <div class="phone-frame">
+                        <div class="phone-header">
+                            <div class="header-left">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Paramètres</span>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-container">
+                            <div class="profile-section">
+                                    <div class="profile-avatar">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="profile-info">
+                                    <h3>Marie Konan</h3>
+                                    <span>Productrice de maïs</span>
+                                    </div>
+                                <button class="edit-profile">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                            </div>
+                            
+                            <div class="settings-list">
+                                <div class="setting-group">
+                                    <h4>Profil</h4>
+                                    <div class="setting-item">
+                                        <div class="setting-icon">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="setting-content">
+                                            <span>Nom complet</span>
+                                            <span class="setting-value">Marie Konan</span>
+                                        </div>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                    <div class="setting-item">
+                                        <div class="setting-icon">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                        </div>
+                                        <div class="setting-content">
+                                            <span>Localisation</span>
+                                            <span class="setting-value">Ablawa, Togo</span>
+                                        </div>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-group">
+                                    <h4>Préférences</h4>
+                                    <div class="setting-item">
+                                        <div class="setting-icon">
+                                            <i class="fas fa-language"></i>
+                                        </div>
+                                        <div class="setting-content">
+                                            <span>Langue</span>
+                                            <span class="setting-value">Français</span>
+                                        </div>
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
+                                    <div class="setting-item">
+                                        <div class="setting-icon">
+                                            <i class="fas fa-bell"></i>
+                                        </div>
+                                        <div class="setting-content">
+                                            <span>Notifications</span>
+                                        <div class="toggle-switch active">
+                                            <div class="toggle-slider"></div>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="setting-group">
+                                    <h4>Cultures</h4>
+                                    <div class="crops-list">
+                                        <div class="crop-item">
+                                            <i class="fas fa-seedling"></i>
+                                            <span>Maïs</span>
+                                            <div class="crop-status active"></div>
+                                        </div>
+                                        <div class="crop-item">
+                                            <i class="fas fa-seedling"></i>
+                                            <span>Tomate</span>
+                                            <div class="crop-status"></div>
+                                    </div>
+                                        <div class="crop-item">
+                                            <i class="fas fa-seedling"></i>
+                                            <span>Ananas</span>
+                                            <div class="crop-status"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Écran 9: Dashboard Premium -->
+            <div class="screen" id="screen-9">
+                <div class="phone-mockup">
+                    <div class="phone-frame">
+                        <div class="phone-header">
+                            <div class="header-left">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Mon Dashboard</span>
+                            </div>
+                            <div class="header-actions">
+                                <i class="fas fa-calendar"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-container">
+                            <div class="dashboard-stats">
+                                <div class="stat-card primary">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-search"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <span class="stat-number">24</span>
+                                        <span class="stat-label">Diagnostics</span>
+                                    </div>
+                                    <div class="stat-trend positive">
+                                            <i class="fas fa-arrow-up"></i>
+                                        <span>+12%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="stat-card success">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <span class="stat-number">18</span>
+                                        <span class="stat-label">Résolus</span>
+                                        </div>
+                                    <div class="stat-trend positive">
+                                            <i class="fas fa-arrow-up"></i>
+                                        <span>+8%</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="stat-card warning">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <span class="stat-number">3</span>
+                                        <span class="stat-label">Alertes</span>
+                                        </div>
+                                    <div class="stat-trend negative">
+                                        <i class="fas fa-arrow-down"></i>
+                                        <span>-2</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="dashboard-chart">
+                                <div class="chart-header">
+                                    <h3>Évolution des Infestations</h3>
+                                    <div class="chart-period">
+                                        <button class="period-btn active">7j</button>
+                                        <button class="period-btn">30j</button>
+                                        <button class="period-btn">90j</button>
+                                    </div>
+                                </div>
+                                <div class="chart-container">
+                                    <canvas id="infestationChart"></canvas>
+                                </div>
+                            </div>
+                            
+                            <div class="dashboard-alerts">
+                                <h3>Alertes Récentes</h3>
+                                <div class="alert-list">
+                                    <div class="alert-item">
+                                        <div class="alert-icon warning">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                                        <div class="alert-content">
+                                            <h4>Chenille Légionnaire</h4>
+                                            <p>3 signalements dans votre zone</p>
+                                            <span class="alert-time">Il y a 2h</span>
+                        </div>
+                    </div>
+                                    <div class="alert-item">
+                                        <div class="alert-icon info">
+                                            <i class="fas fa-info-circle"></i>
+                                        </div>
+                                        <div class="alert-content">
+                                            <h4>Mildiou de la Tomate</h4>
+                                            <p>Conditions favorables détectées</p>
+                                            <span class="alert-time">Il y a 1j</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Écran 10: Analytics Premium -->
+            <div class="screen" id="screen-10">
+                <div class="phone-mockup">
+                    <div class="phone-frame">
+                        <div class="phone-header">
+                            <div class="header-left">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Analytics Détaillées</span>
+                            </div>
+                            <div class="header-actions">
+                                <i class="fas fa-download"></i>
+                                <i class="fas fa-share"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="analytics-container">
+                            <div class="analytics-overview">
+                                <div class="overview-card">
+                                    <h3>Performance Générale</h3>
+                                    <div class="performance-metrics">
+                                        <div class="metric">
+                                            <span class="metric-label">Taux de réussite</span>
+                                            <span class="metric-value">75%</span>
+                            </div>
+                                        <div class="metric">
+                                            <span class="metric-label">Temps de réponse</span>
+                                            <span class="metric-value">2.3s</span>
+                                    </div>
+                                        <div class="metric">
+                                            <span class="metric-label">Précision IA</span>
+                                            <span class="metric-value">94%</span>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            <div class="analytics-charts">
+                                <div class="chart-section">
+                                    <h3>Répartition par Culture</h3>
+                                    <div class="chart-container">
+                                        <canvas id="cropsChart"></canvas>
+                                    </div>
+                                </div>
+                                
+                                <div class="chart-section">
+                                    <h3>Types de Ravageurs</h3>
+                                    <div class="chart-container">
+                                        <canvas id="pestsChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            <div class="analytics-insights">
+                                <h3>Insights</h3>
+                                <div class="insights-list">
+                                    <div class="insight-item">
+                                        <div class="insight-icon">
+                                            <i class="fas fa-lightbulb"></i>
+                                    </div>
+                                        <div class="insight-content">
+                                            <h4>Période critique détectée</h4>
+                                            <p>Les infestations de chenille légionnaire sont plus fréquentes en juillet-août</p>
+                                        </div>
+                                        </div>
+                                    <div class="insight-item">
+                                        <div class="insight-icon">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                        <div class="insight-content">
+                                            <h4>Amélioration continue</h4>
+                                            <p>Votre taux de réussite a augmenté de 15% ce mois</p>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html> 

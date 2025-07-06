@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>PestAlert WhatsApp Prototype</title>
+  <link rel="stylesheet" href="styles-fixed.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Reset et base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      margin: 0;
+      background: #f0f2f5;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    /* Container principal - Style WhatsApp Web */
+    .wa-container {
+      width: 100vw;
+      max-width: 400px;
+      height: 600px;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      margin: 20px;
+    }
+    
+    /* Header WhatsApp - Style bot */
+    .wa-header {
+      background: #075e54;
+      color: white;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      min-height: 60px;
+    }
+    
+    .wa-header .wa-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #25d366;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .wa-header .wa-title {
+      font-size: 16px;
+      font-weight: 600;
+      flex: 1;
+      line-height: 1.2;
+    }
+    
+    .wa-header .wa-subtitle {
+      font-size: 13px;
+      opacity: 0.8;
+      margin-top: 2px;
+    }
+    
+    .wa-header .wa-admin {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      margin-left: auto;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .wa-header .wa-admin:hover {
+      background: rgba(255,255,255,0.3);
+    }
+    
+    /* Zone de chat - Style WhatsApp */
+    .wa-chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 16px 12px 8px 12px;
+      overflow-y: auto;
+      background: #e5ddd6;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4c4b7' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      scroll-behavior: smooth;
+      min-height: 400px;
+    }
+    
+    .wa-chat::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .wa-chat::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .wa-chat::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.2);
+      border-radius: 3px;
+    }
+    
+    /* Bulles de chat - Dimensions parfaites */
+    .wa-bubble {
+      max-width: 75%;
+      margin-bottom: 8px;
+      display: flex;
+      animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .wa-bubble.bot {
+      justify-content: flex-start;
+    }
+    
+    .wa-bubble.user {
+      justify-content: flex-end;
+    }
+    
+    .wa-bubble-content {
+      background: white;
+      color: #303030;
+      border-radius: 7.5px 7.5px 7.5px 0;
+      padding: 8px 12px;
+      font-size: 14px;
+      line-height: 1.4;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      position: relative;
+      word-wrap: break-word;
+      max-width: 100%;
+    }
+    
+    .wa-bubble.user .wa-bubble-content {
+      background: #dcf8c6;
+      color: #303030;
+      border-radius: 7.5px 7.5px 0 7.5px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    /* Loader animé - Style WhatsApp */
+    .wa-loader {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #25d366;
+      border-radius: 50%;
+      border-top: 2px solid transparent;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Quick replies - Style bot */
+    .wa-quick-replies {
+      background: #f0f0f0;
+      padding: 12px 16px;
+      display: flex;
+      gap: 8px;
+      position: sticky;
+      bottom: 0;
+      z-index: 100;
+      border-top: 1px solid #e0e0e0;
+      justify-content: center;
+      flex-wrap: wrap;
+      min-height: 60px;
+    }
+    
+    .wa-quick-reply {
+      background: #25d366;
+      color: white;
+      border: none;
+      border-radius: 18px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      white-space: nowrap;
+      min-width: 80px;
+      text-align: center;
+    }
+    
+    .wa-quick-reply:hover {
+      background: #128c7e;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    
+    .wa-quick-reply:active {
+      transform: translateY(0);
+    }
+    
+    .wa-quick-reply.secondary {
+      background: #128c7e;
+    }
+    
+    .wa-quick-reply.secondary:hover {
+      background: #075e54;
+    }
+    
+    .wa-quick-reply.warning {
+      background: #fbbf24;
+      color: #333;
+    }
+    
+    .wa-quick-reply.warning:hover {
+      background: #f59e0b;
+    }
+    
+    /* Formulaires et inputs - Style WhatsApp */
+    .wa-bubble-content input,
+    .wa-bubble-content select,
+    .wa-bubble-content textarea {
+      width: 100%;
+      margin: 4px 0;
+      padding: 8px 12px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.2s ease;
+      background: white;
+    }
+    
+    .wa-bubble-content input:focus,
+    .wa-bubble-content select:focus,
+    .wa-bubble-content textarea:focus {
+      outline: none;
+      border-color: #25d366;
+      box-shadow: 0 0 0 2px rgba(37, 211, 102, 0.2);
+    }
+    
+    /* Switches - Style moderne */
+    .wa-bubble-content .switch-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 8px 0;
+      padding: 4px 0;
+    }
+    
+    .wa-bubble-content .switch {
+      width: 44px;
+      height: 24px;
+      background: #25d366;
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .wa-bubble-content .switch::after {
+      content: '';
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    
+    .wa-bubble-content .switch.inactive {
+      background: #ccc;
+    }
+    
+    .wa-bubble-content .switch.inactive::after {
+      right: auto;
+      left: 2px;
+    }
+    
+    /* Cards et conteneurs - Style WhatsApp */
+    .wa-bubble-content .card {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #e9ecef;
+    }
+    
+    .wa-bubble-content .card.success {
+      background: #d4edda;
+      border-color: #c3e6cb;
+      color: #155724;
+    }
+    
+    .wa-bubble-content .card.warning {
+      background: #fff3cd;
+      border-color: #ffeaa7;
+      color: #856404;
+    }
+    
+    .wa-bubble-content .card.info {
+      background: #d1ecf1;
+      border-color: #bee5eb;
+      color: #0c5460;
+    }
+    
+    /* Admin interface - Style dashboard */
+    .admin-tabs {
+      display: flex;
+      gap: 4px;
+      margin: 12px 0;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+    
+    .admin-tab {
+      background: #128c7e;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    
+    .admin-tab.active {
+      background: #25d366;
+    }
+    
+    .admin-tab:hover {
+      background: #075e54;
+    }
+    
+    .admin-content {
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 12px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      animation: slideUp 0.3s ease-out;
+    }
+    
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Responsive design - Optimisé bot */
+    @media (max-width: 480px) {
+      .wa-container {
+        width: 100vw;
+        height: 100vh;
+        max-width: none;
+        border-radius: 0;
+        margin: 0;
+      }
+      
+      .wa-quick-replies {
+        padding: 8px 12px;
+        gap: 6px;
+      }
+      
+      .wa-quick-reply {
+        padding: 6px 12px;
+        font-size: 12px;
+        min-width: 70px;
+      }
+      
+      .wa-bubble {
+        max-width: 80%;
+      }
+      
+      .wa-bubble-content {
+        padding: 6px 10px;
+        font-size: 13px;
+      }
+    }
+    
+    @media (max-width: 360px) {
+      .wa-quick-replies {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .wa-quick-reply {
+        flex: 1;
+        min-width: 60px;
+      }
+    }
+    
+    /* Animations supplémentaires */
+    .fade-in {
+      animation: fadeIn 0.4s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .bounce-in {
+      animation: bounceIn 0.5s ease-out;
+    }
+    
+    @keyframes bounceIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.3);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.05);
+      }
+      70% {
+        transform: scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    /* Effets de hover pour les éléments interactifs */
+    .wa-bubble-content button {
+      transition: all 0.2s ease;
+    }
+    
+    .wa-bubble-content button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    
+    /* Amélioration de l'accessibilité */
+    .wa-quick-reply:focus,
+    .wa-admin:focus,
+    .admin-tab:focus {
+      outline: 2px solid #25d366;
+      outline-offset: 2px;
+    }
+    
+    /* Indicateur de frappe (optionnel) */
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 12px;
+      background: white;
+      border-radius: 7.5px 7.5px 7.5px 0;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      max-width: 60px;
+    }
+    
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      background: #999;
+      border-radius: 50%;
+      animation: typing 1.4s infinite ease-in-out;
+    }
+    
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    
+    @keyframes typing {
+      0%, 80%, 100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+      }
+      40% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wa-container">
+    <div class="wa-header">
+      <div class="wa-avatar"><i class="fas fa-leaf"></i></div>
+      <div class="wa-title">PestAlert Bot</div>
+      <button class="wa-admin" onclick="handleAdminAccess()">Admin</button>
+    </div>
+    <div class="wa-chat" id="waChat">
+      <!-- Les bulles de chat s'afficheront ici -->
+    </div>
+    <div class="wa-quick-replies" id="waQuickReplies">
+      <button class="wa-quick-reply" onclick="handleQuickReply('photo')">📸 Photo</button>
+      <button class="wa-quick-reply secondary" onclick="handleQuickReply('traitement')">💊 Traitement</button>
+      <button class="wa-quick-reply warning" onclick="handleQuickReply('signalement')">🚨 Signalement</button>
+      <button class="wa-quick-reply secondary" onclick="handleQuickReply('dashboard')">📊 Dashboard</button>
+      <button class="wa-quick-reply secondary" onclick="handleQuickReply('parametres')">⚙️ Paramètres</button>
+    </div>
+  </div>
+  <script>
+    // Helpers pour bulles
+    function addBotBubble(text, options = {}) {
+      const chat = document.getElementById('waChat');
+      const bubble = document.createElement('div');
+      bubble.className = 'wa-bubble bot';
+      bubble.innerHTML = `<div class='wa-bubble-content'>${text}</div>`;
+      chat.appendChild(bubble);
+      chat.scrollTop = chat.scrollHeight;
+    }
+    function addUserBubble(text) {
+      const chat = document.getElementById('waChat');
+      const bubble = document.createElement('div');
+      bubble.className = 'wa-bubble user';
+      bubble.innerHTML = `<div class='wa-bubble-content'>${text}</div>`;
+      chat.appendChild(bubble);
+      chat.scrollTop = chat.scrollHeight;
+    }
+    function addLoaderBubble() {
+      const chat = document.getElementById('waChat');
+      const bubble = document.createElement('div');
+      bubble.className = 'wa-bubble bot';
+      bubble.innerHTML = `<div class='wa-bubble-content'><span class='wa-loader'></span> Analyse en cours...</div>`;
+      bubble.id = 'waLoader';
+      chat.appendChild(bubble);
+      chat.scrollTop = chat.scrollHeight;
+    }
+    function removeLoaderBubble() {
+      const loader = document.getElementById('waLoader');
+      if (loader) loader.remove();
+    }
+    // Styles bulles et loader
+    const style = document.createElement('style');
+    style.innerHTML = `
+      .wa-bubble { max-width: 80%; margin-bottom: 0.5rem; display: flex; }
+      .wa-bubble.bot { justify-content: flex-start; }
+      .wa-bubble.user { justify-content: flex-end; }
+      .wa-bubble-content { background: #fff; color: #222; border-radius: 18px 18px 18px 6px; padding: 0.7rem 1rem; font-size: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+      .wa-bubble.user .wa-bubble-content { background: #dcf8c6; color: #222; border-radius: 18px 18px 6px 18px; }
+      .wa-loader { display: inline-block; width: 1.2em; height: 1.2em; border: 3px solid #25d366; border-radius: 50%; border-top: 3px solid #fff; animation: spin 1s linear infinite; margin-right: 0.5em; vertical-align: middle; }
+      @keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
+    `;
+    document.head.appendChild(style);
+    // Logique quick replies
+    function setQuickReplies(replies) {
+      const qr = document.getElementById('waQuickReplies');
+      qr.innerHTML = '';
+      replies.forEach(r => {
+        const btn = document.createElement('button');
+        btn.className = 'wa-quick-reply' + (r.type ? ' ' + r.type : '');
+        btn.innerHTML = r.label;
+        btn.onclick = r.onClick;
+        qr.appendChild(btn);
+      });
+    }
+    // Workflow principal
+    function handleQuickReply(action) {
+      if (action === 'photo') {
+        addUserBubble('📸 Photo');
+        setTimeout(() => {
+          addBotBubble('Veuillez prendre une photo nette de la plante ou du ravageur.');
+          setQuickReplies([
+            { label: 'Reprendre 📷', onClick: () => handlePhotoStep('retake') },
+            { label: 'Envoyer ✅', onClick: () => handlePhotoStep('send'), type: 'secondary' }
+          ]);
+        }, 400);
+      } else if (action === 'traitement') {
+        addUserBubble('💊 Traitement');
+        setTimeout(() => {
+          addBotBubble('Voici les recommandations de traitement adaptées à votre situation :<br><ul style="margin:0 0 0 1em;padding:0;list-style:disc;">\
+<li><b>Méthode bio :</b> Pulvérisez de l\'huile de neem (2%) tôt le matin.</li>\
+<li><b>Méthode chimique :</b> Utilisez un insecticide homologué, respectez la dose indiquée.</li>\
+<li><b>Surveillance :</b> Contrôlez la parcelle tous les 2 jours pendant 2 semaines.</li>\
+<li><b>Fournisseurs locaux :</b> AgriShop, Coopérative du village.</li></ul>');
+          setQuickReplies([
+            { label: 'Télécharger PDF', onClick: () => { addUserBubble('Télécharger PDF'); addBotBubble('📄 PDF téléchargé (simulation).'); } },
+            { label: 'Retour menu', onClick: () => window.location.reload() }
+          ]);
+        }, 400);
+      } else if (action === 'signalement') {
+        addUserBubble('🚨 Signalement');
+        setTimeout(() => {
+          addBotBubble('Merci de décrire le foyer ou d'envoyer votre position.');
+          addBotBubble('<b>Type de ravageur :</b><br><select id="typeRavageur" style="width:90%;margin:0.5em 0;"><option>Chenille légionnaire</option><option>Cochenille farineuse</option><option>Puceron</option><option>Autre</option></select>');
+          addBotBubble('<b>Localisation :</b><br><input id="localisation" type="text" style="width:90%;margin:0.5em 0;" placeholder="Votre village ou GPS">');
+          addBotBubble('<b>Description :</b><br><textarea id="descSignalement" rows="2" style="width:90%;margin:0.5em 0;" placeholder="Décrivez l'infestation..."></textarea>');
+          setQuickReplies([
+            { label: 'Envoyer 🚀', onClick: () => handleSignalementSend(), type: 'warning' },
+            { label: 'Retour menu', onClick: () => window.location.reload() }
+          ]);
+        }, 400);
+      } else if (action === 'historique') {
+        addUserBubble('📋 Historique');
+        setTimeout(() => {
+          addBotBubble('Voici votre historique des analyses :');
+          addBotBubble('<ul style="margin:0 0 0 1em;padding:0;list-style:disc;">\
+<li>05/07/2025 – Chenille légionnaire – <b>Traitement en cours</b></li>\
+<li>02/07/2025 – Puceron – <b>Résolu</b></li>\
+<li>28/06/2025 – Cochenille farineuse – <b>Signalé</b></li></ul>');
+          setQuickReplies([
+            { label: 'Exporter PDF', onClick: () => { addUserBubble('Exporter PDF'); addBotBubble('📄 PDF exporté (simulation).'); } },
+            { label: 'Retour menu', onClick: () => window.location.reload() }
+          ]);
+        }, 400);
+      } else if (action === 'dashboard') {
+        addUserBubble('📊 Dashboard');
+        setTimeout(() => {
+          addBotBubble('Voici votre tableau de bord personnel :');
+          addBotBubble('<div style="background:#f8f9fa;border-radius:8px;padding:1rem;margin:0.5rem 0;">\
+<b>📈 KPIs Personnels :</b><br>\
+• Diagnostics réalisés : <b>12</b><br>\
+• Taux de réussite : <b>85%</b><br>\
+• Alertes actives : <b>2</b><br>\
+• Ravageurs rencontrés : <b>4 types</b></div>');
+          addBotBubble('<div style="background:#e8f5e8;border-radius:8px;padding:1rem;margin:0.5rem 0;">\
+<b>📊 Évolution (7 jours) :</b><br>\
+• Chenille légionnaire : <b>3 cas</b><br>\
+• Puceron : <b>1 cas</b><br>\
+• Cochenille : <b>2 cas</b></div>');
+          setQuickReplies([
+            { label: 'Voir plus 📉', onClick: () => handleDashboardDetail(), type: 'secondary' },
+            { label: 'Retour menu', onClick: () => window.location.reload() }
+          ]);
+        }, 400);
+      } else if (action === 'parametres') {
+        addUserBubble('⚙️ Paramètres');
+        setTimeout(() => {
+          addBotBubble('🔧 <b>Paramètres personnels</b><br>Personnalisez votre expérience PestAlert :');
+          
+          // Formulaire des paramètres
+          addBotBubble('<div style="background:#f8f9fa;border-radius:8px;padding:1rem;margin:0.5rem 0;">\
+<b>👤 Nom du producteur :</b><br>\
+<input id="nomProducteur" type="text" style="width:90%;margin:0.5em 0;padding:0.5em;border:1px solid #ddd;border-radius:4px;" placeholder="Votre nom" value="Ablawa Kossi"></div>');
+          
+          addBotBubble('<div style="background:#f8f9fa;border-radius:8px;padding:1rem;margin:0.5rem 0;">\
+<b>🌍 Langue préférée :</b><br>\
+<select id="languePreferee" style="width:90%;margin:0.5em 0;padding:0.5em;border:1px solid #ddd;border-radius:4px;">\
+<option value="francais">Français</option>\
+<option value="fon">Fon</option>\
+<option value="mina">Mina</option>\
+<option value="yoruba">Yoruba</option>\
+</select></div>');
+          
+          addBotBubble('<div style="background:#f8f9fa;border-radius:8px;padding:1rem;margin:0.5rem 0;">\
+<b>🌾 Type de culture suivi :</b><br>\
+<select id="typeCulture" style="width:90%;margin:0.5em 0;padding:0.5em;border:1px solid #ddd;border-radius:4px;">\
+<option value="mais">Maïs</option>\
+<option value="tomate">Tomate</option>\
+<option value="ananas">Ananas</option>\
+<option value="manioc">Manioc</option>\
+<option value="igname">Igname</option>\
+<option value="autre">Autre</option>\
+</select></div>');
+          
+          addBotBubble('<div style="background:#f8f9fa;border-radius:8px;padding:1rem;margin:0.5rem 0;">\
+<b>🔔 Notifications :</b><br>\
+<div style="display:flex;align-items:center;justify-content:space-between;margin:0.5em 0;">\
+<span>Alertes d\'infestation</span>\
+<div style="width:50px;height:24px;background:#25d366;border-radius:12px;position:relative;cursor:pointer;" onclick="toggleSwitch(this)">\
+<div style="width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:2px;right:2px;"></div>\
+</div>\
+</div>\
+<div style="display:flex;align-items:center;justify-content:space-between;margin:0.5em 0;">\
+<span>Conseils quotidiens</span>\
+<div style="width:50px;height:24px;background:#e5e7eb;border-radius:12px;position:relative;cursor:pointer;" onclick="toggleSwitch(this)">\
+<div style="width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;"></div>\
+</div>\
+</div>\
+<div style="display:flex;align-items:center;justify-content:space-between;margin:0.5em 0;">\
+<span>Rapports hebdomadaires</span>\
+<div style="width:50px;height:24px;background:#25d366;border-radius:12px;position:relative;cursor:pointer;" onclick="toggleSwitch(this)">\
+<div style="width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:2px;right:2px;"></div>\
+</div>\
+</div></div>');
+          
+          addBotBubble('<div style="background:#f8f9fa;border-radius:8px;padding:1rem;margin:0.5rem 0;">\
+<b>📍 Géolocalisation :</b><br>\
+<div style="display:flex;align-items:center;justify-content:space-between;margin:0.5em 0;">\
+<span>Partager ma position</span>\
+<div style="width:50px;height:24px;background:#25d366;border-radius:12px;position:relative;cursor:pointer;" onclick="toggleSwitch(this)">\
+<div style="width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:2px;right:2px;"></div>\
+</div>\
+</div></div>');
+          
+          setQuickReplies([
+            { label: '💾 Sauvegarder', onClick: () => handleParametresSave(), type: 'secondary' },
+            { label: 'Retour menu', onClick: () => window.location.reload() }
+          ]);
+        }, 400);
+      }
+    }
+    function handlePhotoStep(step) {
+      if (step === 'retake') {
+        addUserBubble('Reprendre 📷');
+        addBotBubble('Veuillez reprendre une photo nette.');
+      } else if (step === 'send') {
+        addUserBubble('Envoyer ✅');
+        addLoaderBubble();
+        setQuickReplies([]);
+        setTimeout(() => {
+          removeLoaderBubble();
+          addBotBubble('Ravageur détecté : <b>Chenille légionnaire</b><br>Gravité : <b>Élevée</b><br>Souhaitez-vous un traitement adapté ?');
+          setQuickReplies([
+            { label: '💊 Oui, traitement', onClick: () => handleQuickReply('traitement'), type: 'secondary' },
+            { label: 'Retour menu', onClick: () => window.location.reload() }
+          ]);
+        }, 1800);
+      }
+    }
+    function handleSignalementSend() {
+      addUserBubble('Envoyer 🚀');
+      addLoaderBubble();
+      setQuickReplies([]);
+      setTimeout(() => {
+        removeLoaderBubble();
+        addBotBubble('✅ Signalement ajouté avec succès ! Merci de contribuer à la sécurité de la communauté.');
+        setQuickReplies([
+          { label: 'Retour menu', onClick: () => window.location.reload() }
+        ]);
+      }, 1200);
+    }
+    function handleDashboardDetail() {
+      addUserBubble('Voir plus 📉');
+      setTimeout(() => {
+        addBotBubble('📊 Détail des données :');
+        addBotBubble('<div style="background:#fff3cd;border-radius:8px;padding:1rem;margin:0.5rem 0;">\
+<b>🗺️ Carte thermique :</b><br>\
+• Zone rouge : Village A (5 foyers)<br>\
+• Zone orange : Village B (3 foyers)<br>\
+• Zone verte : Votre parcelle (0 foyer)</div>');
+        addBotBubble('<div style="background:#d1ecf1;border-radius:8px;padding:1rem;margin:0.5rem 0;">\
+<b>📈 Statistiques détaillées :</b><br>\
+• Traitements réussis : <b>10/12</b><br>\
+• Temps moyen de résolution : <b>4 jours</b><br>\
+• Économies réalisées : <b>15%</b></div>');
+        setQuickReplies([
+          { label: 'Retour dashboard', onClick: () => handleQuickReply('dashboard') },
+          { label: 'Retour menu', onClick: () => window.location.reload() }
+        ]);
+      }, 400);
+    }
+    function handleAdminAccess() {
+      // Vider le chat et afficher l'interface admin
+      document.getElementById('waChat').innerHTML = '';
+      document.getElementById('waQuickReplies').innerHTML = '';
+      
+      // Changer le header pour l'admin
+      document.querySelector('.wa-title').textContent = 'PestAlert Admin';
+      document.querySelector('.wa-admin').textContent = 'Utilisateur';
+      document.querySelector('.wa-admin').onclick = () => window.location.reload();
+      
+      // Afficher l'interface admin
+      addBotBubble('🛠️ <b>Interface Admin PestAlert</b><br>Bienvenue dans le tableau de bord administrateur.');
+      
+      // Onglets admin
+      const adminTabs = document.createElement('div');
+      adminTabs.style.cssText = 'display:flex;gap:0.5rem;margin:1rem 0;overflow-x:auto;';
+      adminTabs.innerHTML = `
+        <button onclick="showAdminTab('overview')" style="background:#25d366;color:#fff;border:none;border-radius:8px;padding:0.5rem 1rem;font-size:0.9rem;cursor:pointer;">Vue d'ensemble</button>
+        <button onclick="showAdminTab('map')" style="background:#128c7e;color:#fff;border:none;border-radius:8px;padding:0.5rem 1rem;font-size:0.9rem;cursor:pointer;">Carte</button>
+        <button onclick="showAdminTab('user')" style="background:#128c7e;color:#fff;border:none;border-radius:8px;padding:0.5rem 1rem;font-size:0.9rem;cursor:pointer;">Utilisateur</button>
+        <button onclick="showAdminTab('intents')" style="background:#128c7e;color:#fff;border:none;border-radius:8px;padding:0.5rem 1rem;font-size:0.9rem;cursor:pointer;">Intents</button>
+        <button onclick="showAdminTab('stats')" style="background:#128c7e;color:#fff;border:none;border-radius:8px;padding:0.5rem 1rem;font-size:0.9rem;cursor:pointer;">Stats</button>
+        <button onclick="showAdminTab('system')" style="background:#128c7e;color:#fff;border:none;border-radius:8px;padding:0.5rem 1rem;font-size:0.9rem;cursor:pointer;">Système</button>
+      `;
+      document.getElementById('waChat').appendChild(adminTabs);
+      
+      // Afficher l'onglet par défaut
+      showAdminTab('overview');
+    }
+    function showAdminTab(tab) {
+      // Vider le contenu précédent
+      const chat = document.getElementById('waChat');
+      const existingContent = chat.querySelector('.admin-content');
+      if (existingContent) existingContent.remove();
+      
+      // Créer le contenu de l'onglet
+      const content = document.createElement('div');
+      content.className = 'admin-content';
+      content.style.cssText = 'background:#fff;border-radius:8px;padding:1rem;margin:1rem 0;box-shadow:0 2px 8px rgba(0,0,0,0.1);';
+      
+      if (tab === 'overview') {
+        content.innerHTML = `
+          <h3>🧭 Vue d'ensemble</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;">
+            <div style="background:#e8f5e8;padding:1rem;border-radius:8px;">
+              <b>📊 Analyses en cours</b><br><span style="font-size:1.5rem;color:#25d366;">24</span>
+            </div>
+            <div style="background:#fff3cd;padding:1rem;border-radius:8px;">
+              <b>🚨 Foyers signalés</b><br><span style="font-size:1.5rem;color:#fbbf24;">8</span>
+            </div>
+            <div style="background:#f8d7da;padding:1rem;border-radius:8px;">
+              <b>📍 Zones touchées</b><br><span style="font-size:1.5rem;color:#dc3545;">12</span>
+            </div>
+            <div style="background:#d1ecf1;padding:1rem;border-radius:8px;">
+              <b>✅ Taux de réponse</b><br><span style="font-size:1.5rem;color:#17a2b8;">78%</span>
+            </div>
+          </div>
+        `;
+      } else if (tab === 'map') {
+        content.innerHTML = `
+          <h3>🗺️ Carte des signalements</h3>
+          <div style="background:#f8f9fa;height:200px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:1rem 0;">
+            <div style="text-align:center;color:#6c757d;">
+              <i class="fas fa-map" style="font-size:3rem;margin-bottom:1rem;"></i><br>
+              Carte interactive des foyers d'infestation
+            </div>
+          </div>
+          <div style="background:#fff3cd;padding:1rem;border-radius:8px;margin:1rem 0;">
+            <b>Filtres :</b> Région, Culture, Type de ravageur
+          </div>
+        `;
+      } else if (tab === 'user') {
+        content.innerHTML = `
+          <h3>📋 Détail utilisateur</h3>
+          <div style="background:#f8f9fa;padding:1rem;border-radius:8px;margin:1rem 0;">
+            <b>👤 Agriculteur :</b> Ablawa Kossi<br>
+            <b>📞 Interactions :</b> 15<br>
+            <b>🌾 Cultures :</b> Maïs, Tomate<br>
+            <b>📍 Région :</b> Village A
+          </div>
+          <div style="background:#e8f5e8;padding:1rem;border-radius:8px;margin:1rem 0;">
+            <b>📊 Historique complet :</b><br>
+            • 05/07/2025 - Chenille légionnaire - Traité<br>
+            • 02/07/2025 - Puceron - Résolu<br>
+            • 28/06/2025 - Cochenille - Signalé
+          </div>
+        `;
+      } else if (tab === 'intents') {
+        content.innerHTML = `
+          <h3>🤖 Gestion des Intents</h3>
+          <div style="background:#f8f9fa;padding:1rem;border-radius:8px;margin:1rem 0;">
+            <b>Modifier les réponses automatisées :</b><br>
+            <textarea style="width:100%;height:100px;margin:0.5rem 0;" placeholder="Entrez la nouvelle réponse..."></textarea>
+            <button style="background:#25d366;color:#fff;border:none;border-radius:8px;padding:0.5rem 1rem;margin:0.5rem 0;">Sauvegarder</button>
+          </div>
+          <div style="background:#e8f5e8;padding:1rem;border-radius:8px;margin:1rem 0;">
+            <b>🧪 Test de conversation :</b><br>
+            <button style="background:#128c7e;color:#fff;border:none;border-radius:8px;padding:0.5rem 1rem;margin:0.5rem 0;">Tester le bot</button>
+          </div>
+        `;
+      } else if (tab === 'stats') {
+        content.innerHTML = `
+          <h3>📈 Statistiques par culture</h3>
+          <div style="background:#f8f9fa;padding:1rem;border-radius:8px;margin:1rem 0;">
+            <b>🌾 Maïs :</b> 45% des signalements<br>
+            <b>🍅 Tomate :</b> 30% des signalements<br>
+            <b>🍍 Ananas :</b> 15% des signalements<br>
+            <b>🌿 Autres :</b> 10% des signalements
+          </div>
+          <div style="background:#e8f5e8;padding:1rem;border-radius:8px;margin:1rem 0;">
+            <b>📊 Courbe de tendance :</b><br>
+            <div style="height:100px;background:#fff;border-radius:4px;display:flex;align-items:center;justify-content:center;margin:0.5rem 0;">
+              Graphique des pics d'alerte
+            </div>
+          </div>
+        `;
+      } else if (tab === 'system') {
+        content.innerHTML = `
+          <h3>⚙️ Paramètres système</h3>
+          <div style="background:#f8f9fa;padding:1rem;border-radius:8px;margin:1rem 0;">
+            <b>🔑 Clés API :</b><br>
+            • OpenEPI : <span style="color:#25d366;">Active</span><br>
+            • WhatsApp : <span style="color:#25d366;">Active</span>
+          </div>
+          <div style="background:#fff3cd;padding:1rem;border-radius:8px;margin:1rem 0;">
+            <b>💰 Coûts :</b><br>
+            • Messages SMS : 0.05€/msg<br>
+            • Messages WhatsApp : 0.02€/msg
+          </div>
+          <div style="background:#e8f5e8;padding:1rem;border-radius:8px;margin:1rem 0;">
+            <b>👥 Rôles :</b><br>
+            • Agents : 5 utilisateurs<br>
+            • Superviseurs : 2 utilisateurs
+          </div>
+        `;
+      }
+      
+      chat.appendChild(content);
+    }
+    function toggleSwitch(element) {
+      const isActive = element.style.background === 'rgb(37, 211, 102)' || element.style.background === '#25d366';
+      if (isActive) {
+        element.style.background = '#e5e7eb';
+        element.querySelector('div').style.left = '2px';
+        element.querySelector('div').style.right = 'auto';
+      } else {
+        element.style.background = '#25d366';
+        element.querySelector('div').style.right = '2px';
+        element.querySelector('div').style.left = 'auto';
+      }
+    }
+    function handleParametresSave() {
+      addUserBubble('💾 Sauvegarder');
+      addLoaderBubble();
+      setQuickReplies([]);
+      
+      setTimeout(() => {
+        removeLoaderBubble();
+        addBotBubble('✅ Paramètres sauvegardés avec succès !');
+        addBotBubble('Vos préférences ont été mises à jour :<br>\
+• Nom : <b>' + (document.getElementById('nomProducteur')?.value || 'Ablawa Kossi') + '</b><br>\
+• Langue : <b>' + (document.getElementById('languePreferee')?.value || 'Français') + '</b><br>\
+• Culture : <b>' + (document.getElementById('typeCulture')?.value || 'Maïs') + '</b>');
+        setQuickReplies([
+          { label: 'Retour menu', onClick: () => window.location.reload() }
+        ]);
+      }, 1500);
+    }
+    // Message d'accueil au chargement
+    window.onload = function() {
+      addBotBubble('👋 Bonjour ! Je suis votre assistant agricole PestAlert. Comment puis-je vous aider aujourd\'hui ?');
+      setQuickReplies([
+        { label: '📸 Photo', onClick: () => handleQuickReply('photo') },
+        { label: '💊 Traitement', onClick: () => handleQuickReply('traitement'), type: 'secondary' },
+        { label: '🚨 Signalement', onClick: () => handleQuickReply('signalement'), type: 'warning' },
+        { label: '📊 Dashboard', onClick: () => handleQuickReply('dashboard'), type: 'secondary' },
+        { label: '⚙️ Paramètres', onClick: () => handleQuickReply('parametres'), type: 'secondary' }
+      ]);
+    };
+  </script>
+</body>
+</html> 

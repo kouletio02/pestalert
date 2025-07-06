@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="PestAlert">
+    <title>PestAlert - Assistant Agricole</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles-fixed.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        /* Mobile-specific styles */
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        
+        .mobile-app {
+            max-width: 100vw;
+            min-height: 100vh;
+            background: #f8fafc;
+        }
+        
+        .mobile-header {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .mobile-header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .mobile-header .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mobile-content {
+            padding: 1rem;
+            padding-bottom: 80px; /* Space for bottom nav */
+        }
+        
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            padding: 0.5rem;
+            z-index: 100;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .mobile-nav-tabs {
+            display: flex;
+            justify-content: space-around;
+            gap: 0.5rem;
+        }
+        
+        .mobile-nav-tab {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            border-radius: 12px;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-nav-tab.active {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .mobile-nav-tab i {
+            font-size: 1.25rem;
+        }
+        
+        .screen {
+            display: none;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        /* Mobile-optimized cards */
+        .mobile-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border: 1px solid #f1f5f9;
+        }
+        
+        .mobile-card h3 {
+            margin: 0 0 1rem 0;
+            color: #1f2937;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        /* Mobile action buttons */
+        .mobile-action-btn {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-action-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .mobile-action-btn.secondary {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        }
+        
+        .mobile-action-btn.warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        /* Mobile form elements */
+        .mobile-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .mobile-input:focus {
+            outline: none;
+            border-color: #10b981;
+        }
+        
+        /* Mobile status indicators */
+        .mobile-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+        }
+        
+        .mobile-status.success {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        
+        .mobile-status.warning {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid #fcd34d;
+        }
+        
+        .mobile-status.error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+        
+        /* Mobile loading */
+        .mobile-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            color: #6b7280;
+        }
+        
+        .mobile-loading i {
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Mobile responsive adjustments */
+        @media (max-width: 480px) {
+            .mobile-content {
+                padding: 0.75rem;
+            }
+            
+            .mobile-card {
+                padding: 1rem;
+            }
+            
+            .mobile-header h1 {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mobile-app">
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <h1>
+                <div class="logo-icon">
+                    <i class="fas fa-leaf"></i>
+                </div>
+                PestAlert
+            </h1>
+        </header>
+
+        <!-- Mobile Content -->
+        <main class="mobile-content">
+            <!-- Home Screen -->
+            <div class="screen active" id="home">
+                <div class="mobile-card">
+                    <h3>👋 Bonjour !</h3>
+                    <p>Je suis votre assistant agricole intelligent. Comment puis-je vous aider aujourd'hui ?</p>
+                </div>
+
+                <button class="mobile-action-btn" onclick="showScreen('camera')">
+                    <i class="fas fa-camera"></i>
+                    Diagnostic Photo
+                </button>
+
+                <button class="mobile-action-btn secondary" onclick="showScreen('treatment')">
+                    <i class="fas fa-pills"></i>
+                    Guide de Traitement
+                </button>
+
+                <button class="mobile-action-btn warning" onclick="showScreen('alert')">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Signaler Infestation
+                </button>
+
+                <div class="mobile-card">
+                    <h3>📊 Statut Actuel</h3>
+                    <div class="mobile-status success">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Aucune infestation détectée</span>
+                    </div>
+                    <div class="mobile-status">
+                        <i class="fas fa-thermometer-half"></i>
+                        <span>Température: 22°C - Humidité: 65%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Camera Screen -->
+            <div class="screen" id="camera">
+                <div class="mobile-card">
+                    <h3>📸 Diagnostic Photo</h3>
+                    <p>Prenez une photo de la zone infestée pour identifier les ravageurs.</p>
+                </div>
+
+                <div style="background: #f3f4f6; border-radius: 12px; padding: 2rem; text-align: center; margin-bottom: 1rem;">
+                    <i class="fas fa-camera" style="font-size: 3rem; color: #9ca3af;"></i>
+                    <p style="margin: 1rem 0 0 0; color: #6b7280;">Zone de capture photo</p>
+                </div>
+
+                <button class="mobile-action-btn">
+                    <i class="fas fa-camera"></i>
+                    Prendre Photo
+                </button>
+
+                <button class="mobile-action-btn secondary" onclick="showScreen('home')">
+                    <i class="fas fa-arrow-left"></i>
+                    Retour
+                </button>
+            </div>
+
+            <!-- Treatment Screen -->
+            <div class="screen" id="treatment">
+                <div class="mobile-card">
+                    <h3>💊 Plan de Traitement</h3>
+                    <div class="mobile-status warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Cochenille farineuse détectée</span>
+                    </div>
+                </div>
+
+                <div class="mobile-card">
+                    <h4>Étapes du traitement :</h4>
+                    <ol style="padding-left: 1.5rem; line-height: 1.8;">
+                        <li>Pulvérisation d'huile de neem (2%)</li>
+                        <li>Application de savon insecticide</li>
+                        <li>Surveillance pendant 7 jours</li>
+                        <li>Traitement de suivi si nécessaire</li>
+                    </ol>
+                </div>
+
+                <button class="mobile-action-btn">
+                    <i class="fas fa-play"></i>
+                    Démarrer Traitement
+                </button>
+
+                <button class="mobile-action-btn secondary" onclick="showScreen('home')">
+                    <i class="fas fa-arrow-left"></i>
+                    Retour
+                </button>
+            </div>
+
+            <!-- Alert Screen -->
+            <div class="screen" id="alert">
+                <div class="mobile-card">
+                    <h3>🚨 Signalement</h3>
+                    <p>Signalez une infestation pour alerter la communauté agricole.</p>
+                </div>
+
+                <div class="mobile-card">
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Type de ravageur :</label>
+                    <select class="mobile-input">
+                        <option>Cochenille farineuse</option>
+                        <option>Puceron</option>
+                        <option>Mouche blanche</option>
+                        <option>Autre</option>
+                    </select>
+
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Localisation :</label>
+                    <input type="text" class="mobile-input" placeholder="Votre localisation">
+
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Description :</label>
+                    <textarea class="mobile-input" rows="3" placeholder="Décrivez l'infestation..."></textarea>
+                </div>
+
+                <button class="mobile-action-btn warning">
+                    <i class="fas fa-paper-plane"></i>
+                    Envoyer Signalement
+                </button>
+
+                <button class="mobile-action-btn secondary" onclick="showScreen('home')">
+                    <i class="fas fa-arrow-left"></i>
+                    Retour
+                </button>
+            </div>
+
+            <!-- History Screen -->
+            <div class="screen" id="history">
+                <div class="mobile-card">
+                    <h3>📋 Historique</h3>
+                </div>
+
+                <div class="mobile-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <strong>Diagnostic #001</strong>
+                        <span style="color: #6b7280; font-size: 0.875rem;">Aujourd'hui</span>
+                    </div>
+                    <p style="margin: 0; color: #6b7280;">Cochenille farineuse - Traitement en cours</p>
+                </div>
+
+                <div class="mobile-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <strong>Diagnostic #002</strong>
+                        <span style="color: #6b7280; font-size: 0.875rem;">Hier</span>
+                    </div>
+                    <p style="margin: 0; color: #6b7280;">Puceron - Traitement terminé</p>
+                </div>
+            </div>
+
+            <!-- Settings Screen -->
+            <div class="screen" id="settings">
+                <div class="mobile-card">
+                    <h3>⚙️ Paramètres</h3>
+                </div>
+
+                <div class="mobile-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <span>Notifications</span>
+                        <div style="width: 50px; height: 24px; background: #10b981; border-radius: 12px; position: relative;">
+                            <div style="width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 2px; right: 2px;"></div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <span>Mode sombre</span>
+                        <div style="width: 50px; height: 24px; background: #e5e7eb; border-radius: 12px; position: relative;">
+                            <div style="width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px;"></div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>Géolocalisation</span>
+                        <div style="width: 50px; height: 24px; background: #10b981; border-radius: 12px; position: relative;">
+                            <div style="width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 2px; right: 2px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="mobile-action-btn secondary">
+                    <i class="fas fa-download"></i>
+                    Installer l'App
+                </button>
+            </div>
+        </main>
+
+        <!-- Mobile Navigation -->
+        <nav class="mobile-nav">
+            <div class="mobile-nav-tabs">
+                <button class="mobile-nav-tab active" onclick="showScreen('home')">
+                    <i class="fas fa-home"></i>
+                    <span>Accueil</span>
+                </button>
+                <button class="mobile-nav-tab" onclick="showScreen('treatment')">
+                    <i class="fas fa-pills"></i>
+                    <span>Traitement</span>
+                </button>
+                <button class="mobile-nav-tab" onclick="showScreen('alert')">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Alerte</span>
+                </button>
+                <button class="mobile-nav-tab" onclick="showScreen('history')">
+                    <i class="fas fa-history"></i>
+                    <span>Historique</span>
+                </button>
+                <button class="mobile-nav-tab" onclick="showScreen('settings')">
+                    <i class="fas fa-cog"></i>
+                    <span>Réglages</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+
+        // Mobile App Navigation
+        function showScreen(screenId) {
+            // Hide all screens
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            // Show target screen
+            document.getElementById(screenId).classList.add('active');
+            
+            // Update navigation tabs
+            document.querySelectorAll('.mobile-nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Find and activate the corresponding nav tab
+            const navTab = Array.from(document.querySelectorAll('.mobile-nav-tab')).find(tab => {
+                return tab.onclick.toString().includes(screenId);
+            });
+            
+            if (navTab) {
+                navTab.classList.add('active');
+            }
+        }
+
+        // Mobile-specific interactions
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add touch feedback to buttons
+            document.querySelectorAll('.mobile-action-btn').forEach(btn => {
+                btn.addEventListener('touchstart', function() {
+                    this.style.transform = 'scale(0.98)';
+                });
+                
+                btn.addEventListener('touchend', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+
+            // Simulate camera functionality
+            const cameraBtn = document.querySelector('button[onclick="showScreen(\'camera\')"]');
+            if (cameraBtn) {
+                cameraBtn.addEventListener('click', function() {
+                    // Simulate camera access
+                    setTimeout(() => {
+                        showScreen('treatment');
+                    }, 1000);
+                });
+            }
+
+            // Add haptic feedback (if supported)
+            function hapticFeedback() {
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(50);
+                }
+            }
+
+            // Add haptic feedback to important actions
+            document.querySelectorAll('.mobile-action-btn').forEach(btn => {
+                btn.addEventListener('click', hapticFeedback);
+            });
+        });
+
+        // Install prompt for PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install button in settings
+            const installBtn = document.querySelector('button:contains("Installer l\'App")');
+            if (installBtn) {
+                installBtn.style.display = 'block';
+                installBtn.addEventListener('click', () => {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            console.log('User accepted the install prompt');
+                        }
+                        deferredPrompt = null;
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

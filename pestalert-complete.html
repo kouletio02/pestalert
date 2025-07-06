@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#10b981">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="PestAlert">
+    <title>PestAlert - Assistant Agricole Intelligent</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    
+    <!-- Leaflet for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #10b981;
+            --primary-dark: #059669;
+            --secondary-color: #6366f1;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8fafc;
+            --border-color: #e5e7eb;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] {
+            --text-primary: #f9fafb;
+            --text-secondary: #d1d5db;
+            --bg-primary: #111827;
+            --bg-secondary: #1f2937;
+            --border-color: #374151;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: var(--transition);
+            overflow-x: hidden;
+        }
+
+        /* WhatsApp Interface Styles */
+        .whatsapp-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: var(--bg-primary);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .whatsapp-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .whatsapp-header .avatar {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .whatsapp-header .info h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .whatsapp-header .info p {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .whatsapp-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #e5ddd5;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23ffffff" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="%23ffffff" opacity="0.1"/><circle cx="10" cy="60" r="0.5" fill="%23ffffff" opacity="0.1"/><circle cx="90" cy="40" r="0.5" fill="%23ffffff" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message.bot {
+            align-items: flex-start;
+        }
+
+        .message.user {
+            align-items: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 0.75rem 1rem;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .message.bot .message-bubble {
+            background: white;
+            color: var(--text-primary);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 0.25rem;
+            text-align: center;
+        }
+
+        .quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .quick-reply {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-primary);
+        }
+
+        .quick-reply:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .quick-reply:active {
+            transform: scale(0.95);
+        }
+
+        .whatsapp-input {
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .input-field {
+            flex: 1;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .send-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .send-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        /* Dashboard Styles */
+        .dashboard-container {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-primary);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-card h3 {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .chart-container {
+            background: var(--bg-primary);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        .map-container {
+            background: var(--bg-primary);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            height: 400px;
+        }
+
+        #map {
+            height: 100%;
+            border-radius: 8px;
+        }
+
+        /* Photo Upload Styles */
+        .photo-upload {
+            text-align: center;
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border-radius: var(--border-radius);
+            border: 2px dashed var(--border-color);
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .photo-upload:hover {
+            border-color: var(--primary-color);
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .photo-upload i {
+            font-size: 3rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .photo-preview {
+            max-width: 100%;
+            border-radius: var(--border-radius);
+            margin: 1rem 0;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Language Selector */
+        .language-selector {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+        }
+
+        .language-btn {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-primary);
+        }
+
+        .language-btn:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Dark Mode Toggle */
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1000;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .theme-toggle:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-stats {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
+        }
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: var(--transition);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .notification.warning {
+            border-left: 4px solid var(--warning-color);
+        }
+
+        .notification.error {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        /* PDF Export Styles */
+        .export-btn {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .export-btn:hover {
+            background: #4f46e5;
+            transform: translateY(-1px);
+        }
+
+        /* Geolocation Styles */
+        .location-btn {
+            background: var(--warning-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .location-btn:hover {
+            background: #d97706;
+        }
+
+        /* Mobile-specific optimizations */
+        @media (max-width: 768px) {
+            .whatsapp-container {
+                max-width: 100vw;
+                height: 100vh;
+            }
+            
+            .message-bubble {
+                max-width: 85%;
+                font-size: 0.9rem;
+            }
+            
+            .quick-reply {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+            }
+            
+            .whatsapp-input {
+                padding: 0.75rem;
+            }
+            
+            .input-field {
+                font-size: 1rem; /* Prevents zoom on iOS */
+            }
+        }
+
+        /* Touch optimizations */
+        .quick-reply {
+            min-height: 44px; /* iOS minimum touch target */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-btn {
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        /* Prevent text selection on buttons */
+        .quick-reply, .send-btn, .mobile-action-btn {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Haptic feedback simulation */
+        .quick-reply:active, .send-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Status bar styling for PWA */
+        @media (display-mode: standalone) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+        }
+
+        /* Offline indicator */
+        .offline-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #ef4444;
+            color: white;
+            text-align: center;
+            padding: 0.5rem;
+            z-index: 1000;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .offline-indicator.show {
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <!-- Language Selector -->
+    <div class="language-selector">
+        <select class="language-btn" onchange="changeLanguage(this.value)">
+            <option value="fr">🇫🇷 Français</option>
+            <option value="fon">🇧🇯 Fon</option>
+            <option value="mina">🇹🇬 Mina</option>
+            <option value="yoruba">🇳🇬 Yoruba</option>
+        </select>
+    </div>
+
+    <!-- WhatsApp Interface -->
+    <div class="whatsapp-container" id="whatsappInterface">
+        <div class="whatsapp-header">
+            <div class="avatar">
+                <i class="fas fa-leaf"></i>
+            </div>
+            <div class="info">
+                <h2>PestAlert</h2>
+                <p>Assistant Agricole Intelligent</p>
+            </div>
+        </div>
+
+        <div class="whatsapp-messages" id="messages">
+            <!-- Messages will be added here dynamically -->
+        </div>
+
+        <div class="whatsapp-input">
+            <input type="text" class="input-field" id="messageInput" placeholder="Tapez votre message..." onkeypress="handleKeyPress(event)">
+            <button class="send-btn" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Dashboard Interface -->
+    <div class="dashboard-container" id="dashboardInterface">
+        <div class="dashboard-header">
+            <h1>📊 Dashboard Admin PestAlert</h1>
+            <p>Surveillance et gestion des données agricoles</p>
+        </div>
+
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <h3>Analyses Total</h3>
+                <div class="value">1,247</div>
+            </div>
+            <div class="stat-card">
+                <h3>Foyers Signalés</h3>
+                <div class="value">89</div>
+            </div>
+            <div class="stat-card">
+                <h3>Utilisateurs Actifs</h3>
+                <div class="value">342</div>
+            </div>
+            <div class="stat-card">
+                <h3>Taux de Réussite</h3>
+                <div class="value">94%</div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="chart-container">
+                <h3>Évolution des Infestations</h3>
+                <canvas id="infestationChart"></canvas>
+            </div>
+            <div class="map-container">
+                <h3>Carte des Signalements</h3>
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+
+    <script>
+        // Global variables
+        let currentLanguage = 'fr';
+        let currentTheme = 'light';
+        let userLocation = null;
+        let chatHistory = [];
+        let isAnalyzing = false;
+
+        // Language translations
+        const translations = {
+            fr: {
+                welcome: "👋 Bonjour ! Je suis PestAlert, votre assistant agricole intelligent. Comment puis-je vous aider aujourd'hui ?",
+                photoDiagnostic: "📸 Diagnostic Photo",
+                treatmentGuide: "💊 Guide de Traitement",
+                reportInfestation: "🚨 Signaler Infestation",
+                dashboard: "📊 Tableau de Bord",
+                settings: "⚙️ Paramètres",
+                history: "📋 Historique",
+                takePhoto: "Prendre Photo",
+                analyzePhoto: "Analyser Photo",
+                treatmentSteps: "Étapes du Traitement",
+                exportPDF: "Exporter PDF",
+                location: "Localisation",
+                description: "Description",
+                sendReport: "Envoyer Signalement",
+                notifications: "Notifications",
+                darkMode: "Mode Sombre",
+                geolocation: "Géolocalisation",
+                installApp: "Installer l'App"
+            },
+            fon: {
+                welcome: "👋 N'dɔ ! Nye PestAlert, nye kplɔnyi agbɔsisa gbɛgblɔ. Aleke nye le wò kpe ɖe ?",
+                photoDiagnostic: "📸 Foto Kplɔnyi",
+                treatmentGuide: "💊 Atɔn Gbɛgblɔ",
+                reportInfestation: "🚨 Kplɔnyi Ɖoɖo",
+                dashboard: "📊 Kplɔnyi Kpɛvi",
+                settings: "⚙️ Kplɔnyi",
+                history: "📋 Gbɛgblɔ",
+                takePhoto: "Sɛ Foto",
+                analyzePhoto: "Kplɔnyi Foto",
+                treatmentSteps: "Atɔn Ɖoɖo",
+                exportPDF: "Yi PDF",
+                location: "Fie",
+                description: "Kplɔnyi",
+                sendReport: "Yi Kplɔnyi",
+                notifications: "Kplɔnyi",
+                darkMode: "Yɛvɔ Ɖoɖo",
+                geolocation: "Fie Kplɔnyi",
+                installApp: "Sɛ App"
+            },
+            mina: {
+                welcome: "👋 Mido ! Nye PestAlert, nye kplɔnyi agbɔsisa gbɛgblɔ. Aleke nye le wò kpe ɖe ?",
+                photoDiagnostic: "📸 Foto Kplɔnyi",
+                treatmentGuide: "💊 Atɔn Gbɛgblɔ",
+                reportInfestation: "🚨 Kplɔnyi Ɖoɖo",
+                dashboard: "📊 Kplɔnyi Kpɛvi",
+                settings: "⚙️ Kplɔnyi",
+                history: "📋 Gbɛgblɔ",
+                takePhoto: "Sɛ Foto",
+                analyzePhoto: "Kplɔnyi Foto",
+                treatmentSteps: "Atɔn Ɖoɖo",
+                exportPDF: "Yi PDF",
+                location: "Fie",
+                description: "Kplɔnyi",
+                sendReport: "Yi Kplɔnyi",
+                notifications: "Kplɔnyi",
+                darkMode: "Yɛvɔ Ɖoɖo",
+                geolocation: "Fie Kplɔnyi",
+                installApp: "Sɛ App"
+            },
+            yoruba: {
+                welcome: "👋 Bawo ! Emi ni PestAlert, oluranlọwọ agbẹ̀ rẹ̀ olóye. Bawo ni mo le ṣe iranlọwọ fun ọ loni ?",
+                photoDiagnostic: "📸 Fọto Iwadii",
+                treatmentGuide: "💊 Itọsọna Itọjú",
+                reportInfestation: "🚨 Jabo Iṣẹlẹ",
+                dashboard: "📊 Ibi Iṣiro",
+                settings: "⚙️ Eto",
+                history: "📋 Itan",
+                takePhoto: "Fọto",
+                analyzePhoto: "Ṣe Iwadii Fọto",
+                treatmentSteps: "Awọn Igbesẹ Itọjú",
+                exportPDF: "Jade PDF",
+                location: "Ibi",
+                description: "Apejuwe",
+                sendReport: "Fi Jabo",
+                notifications: "Iwifunni",
+                darkMode: "Oju Oru",
+                geolocation: "Ibi Ibi",
+                installApp: "Fi App Sori"
+            }
+        };
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            initializeCharts();
+            initializeMap();
+            showWelcomeMessage();
+        });
+
+        function initializeApp() {
+            // PWA Service Worker Registration
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            }
+
+            // Request notification permission
+            if ('Notification' in window) {
+                Notification.requestPermission();
+            }
+
+            // Request geolocation permission
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        showNotification('Géolocalisation activée', 'success');
+                    },
+                    error => {
+                        console.log('Geolocation error:', error);
+                    }
+                );
+            }
+        }
+
+        function showWelcomeMessage() {
+            const welcomeMessage = {
+                type: 'bot',
+                content: translations[currentLanguage].welcome,
+                quickReplies: [
+                    translations[currentLanguage].photoDiagnostic,
+                    translations[currentLanguage].treatmentGuide,
+                    translations[currentLanguage].reportInfestation,
+                    translations[currentLanguage].dashboard
+                ]
+            };
+            addMessage(welcomeMessage);
+        }
+
+        function addMessage(message) {
+            const messagesContainer = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${message.type}`;
+            
+            const time = new Date().toLocaleTimeString('fr-FR', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+
+            let quickRepliesHTML = '';
+            if (message.quickReplies) {
+                quickRepliesHTML = '<div class="quick-replies">';
+                message.quickReplies.forEach(reply => {
+                    quickRepliesHTML += `<div class="quick-reply" onclick="handleQuickReply('${reply}')">${reply}</div>`;
+                });
+                quickRepliesHTML += '</div>';
+            }
+
+            messageDiv.innerHTML = `
+                <div class="message-bubble">
+                    ${message.content}
+                    ${quickRepliesHTML}
+                </div>
+                <div class="message-time">${time}</div>
+            `;
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Add to chat history
+            chatHistory.push(message);
+        }
+
+        function handleQuickReply(reply) {
+            // Add user message
+            addMessage({
+                type: 'user',
+                content: reply
+            });
+
+            // Handle different quick replies
+            switch(reply) {
+                case translations[currentLanguage].photoDiagnostic:
+                    showPhotoDiagnostic();
+                    break;
+                case translations[currentLanguage].treatmentGuide:
+                    showTreatmentGuide();
+                    break;
+                case translations[currentLanguage].reportInfestation:
+                    showReportInfestation();
+                    break;
+                case translations[currentLanguage].dashboard:
+                    showDashboard();
+                    break;
+                default:
+                    handleGenericResponse(reply);
+            }
+        }
+
+        function showPhotoDiagnostic() {
+            const photoMessage = {
+                type: 'bot',
+                content: `
+                    <div class="photo-upload" onclick="triggerPhotoUpload()">
+                        <i class="fas fa-camera"></i>
+                        <p>Cliquez pour prendre ou sélectionner une photo</p>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary);">
+                            Assurez-vous que la photo soit bien éclairée et nette
+                        </p>
+                    </div>
+                `,
+                quickReplies: ['Retour au menu']
+            };
+            addMessage(photoMessage);
+        }
+
+        function triggerPhotoUpload() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.capture = 'environment';
+            input.onchange = function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    analyzePhoto(file);
+                }
+            };
+            input.click();
+        }
+
+        function analyzePhoto(file) {
+            // Show user's photo
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                addMessage({
+                    type: 'user',
+                    content: `<img src="${e.target.result}" class="photo-preview" alt="Photo uploaded">`
+                });
+
+                // Show analysis message
+                const analysisMessage = {
+                    type: 'bot',
+                    content: `
+                        <div class="loading">
+                            <i class="fas fa-spinner"></i>
+                            Analyse de la photo en cours...
+                        </div>
+                    `
+                };
+                addMessage(analysisMessage);
+
+                // Simulate analysis
+                setTimeout(() => {
+                    showAnalysisResult();
+                }, 3000);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showAnalysisResult() {
+            // Remove loading message
+            const messages = document.querySelectorAll('.message');
+            const lastMessage = messages[messages.length - 1];
+            if (lastMessage.querySelector('.loading')) {
+                lastMessage.remove();
+            }
+
+            const resultMessage = {
+                type: 'bot',
+                content: `
+                    <strong>🔍 Résultat de l'analyse :</strong><br><br>
+                    <strong>Ravageur identifié :</strong> Cochenille farineuse<br>
+                    <strong>Niveau de gravité :</strong> Moyen<br>
+                    <strong>Confiance :</strong> 94%<br><br>
+                    Souhaitez-vous un guide de traitement adapté ?
+                `,
+                quickReplies: [
+                    'Voir le traitement',
+                    'Signaler ce foyer',
+                    'Nouvelle analyse'
+                ]
+            };
+            addMessage(resultMessage);
+        }
+
+        function showTreatmentGuide() {
+            const treatmentMessage = {
+                type: 'bot',
+                content: `
+                    <strong>💊 Guide de Traitement - Cochenille farineuse</strong><br><br>
+                    
+                    <strong>Méthode biologique :</strong><br>
+                    1. Pulvérisation d'huile de neem (2%)<br>
+                    2. Application de savon insecticide<br>
+                    3. Surveillance pendant 7 jours<br><br>
+                    
+                    <strong>Méthode chimique :</strong><br>
+                    1. Insecticide systémique<br>
+                    2. Traitement de contact<br><br>
+                    
+                    <strong>Fournisseurs locaux :</strong><br>
+                    • Coopérative Agricole de Cotonou<br>
+                    • Magasin Agro Plus<br>
+                    • Marché Dantokpa
+                `,
+                quickReplies: [
+                    'Exporter en PDF',
+                    'Démarrer traitement',
+                    'Retour au menu'
+                ]
+            };
+            addMessage(treatmentMessage);
+        }
+
+        function showReportInfestation() {
+            const reportMessage = {
+                type: 'bot',
+                content: `
+                    <strong>🚨 Signalement d'Infestation</strong><br><br>
+                    Pour signaler un foyer d'infestation, veuillez fournir :<br><br>
+                    
+                    <strong>Type de ravageur :</strong><br>
+                    <select id="pestType" style="width: 100%; padding: 0.5rem; margin: 0.5rem 0; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <option>Cochenille farineuse</option>
+                        <option>Puceron</option>
+                        <option>Mouche blanche</option>
+                        <option>Chenille légionnaire</option>
+                        <option>Autre</option>
+                    </select><br><br>
+                    
+                    <strong>Localisation :</strong><br>
+                    <input type="text" id="location" placeholder="Votre localisation" style="width: 100%; padding: 0.5rem; margin: 0.5rem 0; border-radius: 8px; border: 1px solid var(--border-color);"><br><br>
+                    
+                    <strong>Description :</strong><br>
+                    <textarea id="description" placeholder="Décrivez l'infestation..." rows="3" style="width: 100%; padding: 0.5rem; margin: 0.5rem 0; border-radius: 8px; border: 1px solid var(--border-color);"></textarea>
+                `,
+                quickReplies: [
+                    'Envoyer signalement',
+                    'Utiliser ma position GPS',
+                    'Retour au menu'
+                ]
+            };
+            addMessage(reportMessage);
+        }
+
+        function showDashboard() {
+            // Switch to dashboard view
+            document.getElementById('whatsappInterface').style.display = 'none';
+            document.getElementById('dashboardInterface').style.display = 'block';
+            
+            // Show dashboard stats
+            showNotification('Dashboard ouvert', 'success');
+        }
+
+        function handleGenericResponse(response) {
+            const botResponse = {
+                type: 'bot',
+                content: `Je comprends que vous voulez "${response}". Comment puis-je vous aider plus précisément ?`,
+                quickReplies: [
+                    translations[currentLanguage].photoDiagnostic,
+                    translations[currentLanguage].treatmentGuide,
+                    'Retour au menu'
+                ]
+            };
+            addMessage(botResponse);
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addMessage({
+                    type: 'user',
+                    content: message
+                });
+                
+                input.value = '';
+                
+                // Simulate bot response
+                setTimeout(() => {
+                    const botResponse = {
+                        type: 'bot',
+                        content: `Merci pour votre message : "${message}". Comment puis-je vous aider ?`,
+                        quickReplies: [
+                            translations[currentLanguage].photoDiagnostic,
+                            translations[currentLanguage].treatmentGuide,
+                            'Retour au menu'
+                        ]
+                    };
+                    addMessage(botResponse);
+                }, 1000);
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            showNotification(`Langue changée vers ${lang}`, 'success');
+            // Reload messages with new language
+            document.getElementById('messages').innerHTML = '';
+            showWelcomeMessage();
+        }
+
+        function toggleTheme() {
+            currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+            document.body.setAttribute('data-theme', currentTheme);
+            
+            const themeIcon = document.querySelector('.theme-toggle i');
+            themeIcon.className = currentTheme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            
+            showNotification(`Mode ${currentTheme === 'light' ? 'clair' : 'sombre'} activé`, 'success');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.getElementById('notificationContainer').appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => notification.classList.add('show'), 100);
+            
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function initializeCharts() {
+            const ctx = document.getElementById('infestationChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun'],
+                    datasets: [{
+                        label: 'Infestations détectées',
+                        data: [12, 19, 15, 25, 22, 30],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function initializeMap() {
+            const map = L.map('map').setView([6.5244, 3.3792], 6); // Nigeria center
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Add sample infestation markers
+            const infestations = [
+                {lat: 6.5244, lng: 3.3792, name: 'Lagos', type: 'Cochenille'},
+                {lat: 9.0820, lng: 8.6753, name: 'Jos', type: 'Puceron'},
+                {lat: 7.3961, lng: 3.8967, name: 'Ibadan', type: 'Mouche blanche'}
+            ];
+
+            infestations.forEach(infestation => {
+                const marker = L.marker([infestation.lat, infestation.lng])
+                    .addTo(map)
+                    .bindPopup(`
+                        <strong>${infestation.name}</strong><br>
+                        Type: ${infestation.type}<br>
+                        Signalé: Aujourd'hui
+                    `);
+            });
+        }
+
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Add title
+            doc.setFontSize(20);
+            doc.text('PestAlert - Rapport de Traitement', 20, 20);
+            
+            // Add content
+            doc.setFontSize(12);
+            doc.text('Ravageur: Cochenille farineuse', 20, 40);
+            doc.text('Date: ' + new Date().toLocaleDateString(), 20, 50);
+            doc.text('Traitement recommandé:', 20, 70);
+            doc.text('1. Pulvérisation d\'huile de neem (2%)', 20, 80);
+            doc.text('2. Application de savon insecticide', 20, 90);
+            doc.text('3. Surveillance pendant 7 jours', 20, 100);
+            
+            // Save PDF
+            doc.save('pestalert-traitement.pdf');
+            showNotification('PDF exporté avec succès', 'success');
+        }
+
+        // Install prompt for PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showNotification('App disponible pour installation', 'info');
+        });
+    </script>
+</body>
+</html> 
